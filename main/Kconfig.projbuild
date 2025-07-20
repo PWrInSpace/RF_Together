@@ -1,0 +1,6 @@
+menu "Test"
+
+    config TEST
+        int "Test"
+        default 23
+endmenu
