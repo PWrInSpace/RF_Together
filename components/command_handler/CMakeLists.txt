@@ -1,5 +1,5 @@
-idf_component_register(SRCS "command_handler.c"
-                       INCLUDE_DIRS "include"
-                       REQUIRES data_protocol spi_slave_interface)
+idf_component_register(  SRC_DIRS "."
+                         INCLUDE_DIRS "."
+                         REQUIRES  data_protocol spi_slave)
 
-target_compile_options(${COMPONENT_LIB} PRIVATE -Wall -Wextra -Werror)
+target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-format" "-Wall" "-Werror")

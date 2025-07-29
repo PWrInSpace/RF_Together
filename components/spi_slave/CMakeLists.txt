@@ -1,5 +1,5 @@
-idf_component_register(SRCS "spi_slave_interface.c"
-                       INCLUDE_DIRS "include"
-                       PRIV_REQUIRES driver__spi_slave)
+idf_component_register(  SRC_DIRS "."
+                         INCLUDE_DIRS "."
+                         REQUIRES driver)
 
-target_compile_options(${COMPONENT_LIB} PRIVATE -Wall -Wextra -Werror)
+target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-format" "-Wall" "-Werror")

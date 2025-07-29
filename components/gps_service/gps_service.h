@@ -12,7 +12,7 @@ typedef struct {
     bool is_fixed;
 } gps_data_t;
 
-esp_err_t gps_service_init();
+esp_err_t gps_service_start();
 esp_err_t gps_service_get_data(gps_data_t *gps_data);
 
 #endif 

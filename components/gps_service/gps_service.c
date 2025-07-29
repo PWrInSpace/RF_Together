@@ -6,8 +6,8 @@
 
 //zmienic piny
 #define I2C_MASTER_PORT     I2C_NUM_0
-#define I2C_MASTER_SDA_IO   1
-#define I2C_MASTER_SCL_IO   2
+#define I2C_MASTER_SDA_IO   21
+#define I2C_MASTER_SCL_IO   22
 #define I2C_MASTER_FREQ_HZ  400000 
 
 // Domyślny adres I2C 
@@ -63,7 +63,15 @@ static void gps_task(void *pvParameters) {
         uint8_t bytes_avail_buf[2];
         uint16_t bytes_to_read = 0;
 
-        esp_err_t ret = i2c_master_write_read_device(I2C_MASTER_PORT, UBLOX_GPS_ADDR, &UBLOX_REG_BYTES_AVAIL_H, 1, bytes_avail_buf, 2, pdMS_TO_TICKS(1000));
+        uint8_t reg_addr = UBLOX_REG_BYTES_AVAIL_H;
+        esp_err_t ret = i2c_master_write_read_device(
+            I2C_MASTER_PORT,
+            UBLOX_GPS_ADDR,
+            &reg_addr, 1,
+            bytes_avail_buf, 2,
+            pdMS_TO_TICKS(1000)
+        );
+        
         
         if (ret == ESP_OK) {
             bytes_to_read = ((uint16_t)bytes_avail_buf[0] << 8) | bytes_avail_buf[1];
@@ -74,7 +82,15 @@ static void gps_task(void *pvParameters) {
         }
 
         if (bytes_to_read > 0 && bytes_to_read < sizeof(data_buffer)) {
-            ret = i2c_master_write_read_device(I2C_MASTER_PORT, UBLOX_GPS_ADDR, &UBLOX_REG_DATA_STREAM, 1, data_buffer, bytes_to_read, pdMS_TO_TICKS(1000));
+            uint8_t reg = UBLOX_REG_DATA_STREAM;
+            ret = i2c_master_write_read_device(
+                I2C_MASTER_PORT,
+                UBLOX_GPS_ADDR,
+                &reg, 1,
+                data_buffer, bytes_to_read,
+                pdMS_TO_TICKS(1000)
+            );
+
 
             if (ret == ESP_OK) {
                
@@ -110,12 +126,22 @@ esp_err_t gps_service_start() {
         .mode = I2C_MODE_MASTER,
         .sda_io_num = I2C_MASTER_SDA_IO,
         .scl_io_num = I2C_MASTER_SCL_IO,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,  // lub DISABLE, zależnie od hardware
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
         .master.clk_speed = I2C_MASTER_FREQ_HZ,
     };
-    ESP_ERROR_CHECK(i2c_param_config(I2C_MASTER_PORT, &conf));
-    ESP_ERROR_CHECK(i2c_driver_install(I2C_MASTER_PORT, conf.mode, 0, 0, 0));
+
+    esp_err_t err = i2c_param_config(I2C_MASTER_PORT, &conf);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Błąd konfiguracji I2C: %s", esp_err_to_name(err));
+        return err;
+    }
+    err = i2c_driver_install(I2C_MASTER_PORT, conf.mode, 0, 0, 0);
+
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Błąd instalacji sterownika I2C: %s", esp_err_to_name(err));
+        return err;
+    }   
     
     ESP_LOGI(TAG, "Sterownik I2C dla u-blox MAX-M10S zainicjalizowany.");
     

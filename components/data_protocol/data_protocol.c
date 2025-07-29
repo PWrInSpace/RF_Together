@@ -1,4 +1,5 @@
 #include "data_protocol.h"
+#include <stddef.h>
 
 /**
  * @brief 

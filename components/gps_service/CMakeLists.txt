@@ -1,5 +1,5 @@
-idf_component_register(SRCS "gps_service.c"
-                       INCLUDE_DIRS "include"
-                       PRIV_REQUIRES driver__i2c)
+idf_component_register(  SRC_DIRS "."
+                         INCLUDE_DIRS "."
+                         REQUIRES driver)
 
-target_compile_options(${COMPONENT_LIB} PRIVATE -Wall -Wextra -Werror -Wno-format)
+target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-format" "-Wall" "-Werror")
